@@ -9,7 +9,7 @@
   become: true 
   copy:
     src: "{{ deployment_resources }}"
-    dest: "{{ deployment_workdir }}/resources"
+    dest: "{{ deployment_workdir }}/"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
     mode: 0755
