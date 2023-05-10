@@ -6,9 +6,9 @@
     mode: 0755
     
 - name: Install python3 modules
-  pip:
-    name: "numpy"
-    state: latest
+  ansible.builtin.pip:
+    name: bottle
+    state: forcereinstall
 
 - name: Install docker-compose python package
   ansible.builtin.pip:
