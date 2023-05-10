@@ -1,4 +1,7 @@
 ---
+- name: show ansible_python
+   debug: msg={{ ansible_python }}
+   
 - name: Ensure '{{ deployment_workdir }}' exists
   ansible.builtin.file:
     path: "{{ deployment_workdir }}"
