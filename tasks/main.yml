@@ -1,7 +1,4 @@
 ---
-- name: show ansible_python
-   debug: msg={{ ansible_python }}
-   
 - name: Ensure '{{ deployment_workdir }}' exists
   ansible.builtin.file:
     path: "{{ deployment_workdir }}"
@@ -15,6 +12,10 @@
   ansible.builtin.pip:
     name: bottle
     state: forcereinstall
+
+- name: show ansible_python
+  ansible.builtin.debug:
+    msg: "{{ ansible_python }}"
 
 - name: Copying the Keycloak Directory and its contents
   become: true 
