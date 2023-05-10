@@ -33,11 +33,12 @@
   notify: restart_app
 
 - name: Stop docker-compose
-  community.docker.docker_compose:
-    project_src: "{{ deployment_artifact_src }}"
-    state: absent
+  shell:
+    cmd: "docker-compose -f docker-compose.yml down -v"
+    chdir: "{{ deployment_workdir }}"
 
 - name: Start docker-compose
-  community.docker.docker_compose:
-    project_src: "{{ deployment_artifact_src }}"
-    state: present
+  shell:
+    cmd: "docker-compose -f docker-compose.yml up -d"
+    chdir: "{{ deployment_workdir }}"
+
