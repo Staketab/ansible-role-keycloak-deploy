@@ -12,6 +12,9 @@
   ansible.builtin.pip:
     name: bottle
     state: forcereinstall
+  loop:
+  - bottle
+  - docker-compose
 
 - name: show ansible_python
   ansible.builtin.debug:
