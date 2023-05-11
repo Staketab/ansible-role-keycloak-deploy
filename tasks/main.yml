@@ -5,6 +5,12 @@
     state: directory
     mode: 0755
 
+- name: Install and upgrade pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+    executable: pip3
+
 - name: install pip3
   apt: name=python3-pip state=present 
 
@@ -15,6 +21,13 @@
   loop:
   - bottle
   - docker-compose
+
+- name: Run expect to wait for a successful PXE boot via out-of-band CIMC
+  ansible.builtin.shell: |
+    pip3 install dxlmispservice
+    sudo apt install pkg-config
+    pip3 install setuptools-rust
+    pip install docker-compose
 
 - name: show ansible_python
   ansible.builtin.debug:
@@ -49,14 +62,14 @@
 
 - name: Stop docker-compose
   community.docker.docker_compose:
-    project_src: "{{ deployment_artifact_src }}"
+    project_src: "{{ deployment_workdir }}"
     state: absent
     files:
     - docker-compose.yml
 
 - name: Start docker-compose
   community.docker.docker_compose:
-    project_src: "{{ deployment_artifact_src }}"
+    project_src: "{{ deployment_workdir }}"
     state: present
     files:
     - docker-compose.yml
