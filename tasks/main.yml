@@ -49,7 +49,6 @@
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
     mode: 0755
-  notify: restart_app
 
 - name: Transfer an Docker artifact to the remote server
   ansible.builtin.copy:
@@ -58,7 +57,6 @@
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
     mode: 0755
-  notify: restart_app
 
 - name: Setup environment variables
   ansible.builtin.template:
@@ -67,7 +65,6 @@
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
     mode: 0640
-  notify: restart_app
 
 - name: Stop docker-compose
   community.docker.docker_compose:
@@ -75,7 +72,6 @@
     state: absent
     files:
     - docker-compose.yml
-  notify: restart_app
 
 - name: Start docker-compose
   community.docker.docker_compose:
@@ -83,4 +79,3 @@
     state: present
     files:
     - docker-compose.yml
-  notify: restart_app
