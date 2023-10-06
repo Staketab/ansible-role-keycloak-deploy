@@ -24,10 +24,10 @@
 
 - name: Run expect to wait for a successful PXE boot via out-of-band CIMC
   ansible.builtin.shell: |
-    pip3 install dxlmispservice
+    pip3 install dxlmispservice --root-user-action=ignore
     sudo apt install pkg-config
-    pip3 install setuptools-rust
-    pip install docker-compose
+    pip3 install setuptools-rust --root-user-action=ignore
+    pip install docker-compose --root-user-action=ignore
 
 - name: show ansible_python
   ansible.builtin.debug:
