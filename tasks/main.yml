@@ -31,7 +31,6 @@
 - name: Install dxlmispservice with pip3
   ansible.builtin.pip:
     name: dxlmispservice
-    extra_args: --root-user-action=ignore
   become: yes
   
 - name: Ensure pkg-config is installed
@@ -43,13 +42,11 @@
 - name: Install setuptools-rust with pip3
   ansible.builtin.pip:
     name: setuptools-rust
-    extra_args: --root-user-action=ignore
   become: yes
 
 - name: Install docker-compose with pip
   ansible.builtin.pip:
     name: docker-compose
-    extra_args: --root-user-action=ignore
   become: yes
 
 - name: show ansible_python
