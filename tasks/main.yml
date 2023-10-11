@@ -22,52 +22,35 @@
   - bottle
   - docker-compose
 
-# - name: Run expect to wait for a successful PXE boot via out-of-band CIMC
-#   ansible.builtin.shell: |
-#     pip3 install dxlmispservice --root-user-action=ignore
-#     sudo apt install pkg-config
-#     pip3 install setuptools-rust --root-user-action=ignore
-#     pip install docker-compose --root-user-action=ignore
-- name: Ensure system is PXE booted and software is installed
-  hosts: your_target_host_group_or_host
-  tasks:
-    - name: Ensure pip3 is installed
-      ansible.builtin.apt:
-        name: python3-pip
-        state: present
-      become: yes
+- name: Ensure pip3 is installed
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+  become: yes
 
-    - name: Install dxlmispservice with pip3
-      ansible.builtin.pip:
-        name: dxlmispservice
-        extra_args: --root-user-action=ignore
-      become: yes
-      
-    - name: Ensure pkg-config is installed
-      ansible.builtin.apt:
-        name: pkg-config
-        state: present
-      become: yes
+- name: Install dxlmispservice with pip3
+  ansible.builtin.pip:
+    name: dxlmispservice
+    extra_args: --root-user-action=ignore
+  become: yes
+  
+- name: Ensure pkg-config is installed
+  ansible.builtin.apt:
+    name: pkg-config
+    state: present
+  become: yes
 
-    - name: Install setuptools-rust with pip3
-      ansible.builtin.pip:
-        name: setuptools-rust
-        extra_args: --root-user-action=ignore
-      become: yes
+- name: Install setuptools-rust with pip3
+  ansible.builtin.pip:
+    name: setuptools-rust
+    extra_args: --root-user-action=ignore
+  become: yes
 
-    - name: Install docker-compose with pip
-      ansible.builtin.pip:
-        name: docker-compose
-        extra_args: --root-user-action=ignore
-      become: yes
-
-    # - name: Wait for PXE boot to complete
-    #   ansible.builtin.wait_for:
-    #     host: "{{ inventory_hostname }}"
-    #     port: your_pxe_boot_check_port
-    #     delay: your_delay_in_seconds
-    #     timeout: your_timeout_in_seconds
-    #   delegate_to: localhost
+- name: Install docker-compose with pip
+  ansible.builtin.pip:
+    name: docker-compose
+    extra_args: --root-user-action=ignore
+  become: yes
 
 - name: show ansible_python
   ansible.builtin.debug:
