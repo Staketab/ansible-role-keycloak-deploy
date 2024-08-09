@@ -19,6 +19,14 @@
     - dxlmispservice
     state: present
 
+- name: Install Docker Compose
+  ansible.builtin.get_url:
+    url: "{{ docker_compose_url }}"
+    dest: "{{ docker_compose_path }}"
+    owner: root
+    group: root
+    mode: 0o755
+
 - name: Copying the Keycloak Directory and its contents
   become: true
   ansible.builtin.copy:
@@ -54,6 +62,7 @@
 
 - name: Stop docker-compose
   community.docker.docker_compose_v2:
+    docker_cli: "{{ docker_compose_path }}"
     project_src: "{{ deployment_workdir }}"
     state: absent
     files:
@@ -61,6 +70,7 @@
 
 - name: Start docker-compose
   community.docker.docker_compose_v2:
+    docker_cli: "{{ docker_compose_path }}"
     project_src: "{{ deployment_workdir }}"
     state: present
     files:
