@@ -1,133 +1,129 @@
 ---
 - name: Ensure '{{ deployment_workdir }}' exists
-  vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
   ansible.builtin.file:
     path: "{{ deployment_workdir }}"
     state: directory
-    mode: 0755
-
-- name: Install and upgrade pip
+    mode: '0755'
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
-  pip:
+
+- name: Install and upgrade pip
+  ansible.builtin.pip:
     name: pip
     extra_args: --upgrade
     executable: pip3
-
-- name: install pip3
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
-  apt: name=python3-pip state=present 
 
-- name: Install python3 modules
-  vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
-  ansible.builtin.pip:
-    name: bottle
-    state: forcereinstall
-  loop:
-  - bottle
-  - docker-compose
-
-- name: Ensure pip3 is installed
-  vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+- name: Ensure python3-pip is installed
   ansible.builtin.apt:
     name: python3-pip
     state: present
   become: yes
-
-- name: Install dxlmispservice with pip3
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Install python3 modules
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: forcereinstall
+  loop:
+    - bottle
+    - docker-compose
+  vars:
+    ansible_python_interpreter: /usr/local/bin/python3.10
+  become: yes
+
+- name: Install dxlmispservice with pip3
   ansible.builtin.pip:
     name: dxlmispservice
   become: yes
-  
-- name: Ensure pkg-config is installed
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Ensure pkg-config is installed
   ansible.builtin.apt:
     name: pkg-config
     state: present
   become: yes
-
-- name: Install setuptools-rust with pip3
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Install setuptools-rust with pip3
   ansible.builtin.pip:
     name: setuptools-rust
   become: yes
-
-- name: Install docker-compose with pip
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Install docker-compose with pip
   ansible.builtin.pip:
     name: docker-compose
   become: yes
-
-- name: show ansible_python
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Show ansible_python
   ansible.builtin.debug:
     msg: "{{ ansible_python }}"
-
-- name: Copying the Keycloak Directory and its contents
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
-  become: true 
-  copy:
+
+- name: Copying the Keycloak Directory and its contents
+  ansible.builtin.copy:
     src: "{{ deployment_resources }}"
     dest: "{{ deployment_workdir }}/"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
-    mode: 0755
-
-- name: Transfer an JAR artifact to the remote server
+    mode: '0755'
+  become: yes
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Transfer a JAR artifact to the remote server
   ansible.builtin.copy:
     src: "{{ deployment_api_jar_src }}"
     dest: "{{ deployment_api_jar_workdir }}/api-backend-0.0.1-SNAPSHOT.jar"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
-    mode: 0755
-
-- name: Transfer an Docker artifact to the remote server
+    mode: '0755'
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Transfer a Docker artifact to the remote server
   ansible.builtin.copy:
     src: "{{ deployment_artifact }}"
     dest: "{{ deployment_workdir }}/docker-compose.yml"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
-    mode: 0755
-
-- name: Setup environment variables
+    mode: '0755'
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Setup environment variables
   ansible.builtin.template:
     src: env.j2
     dest: "{{ deployment_workdir }}/.env"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
-    mode: 0640
-
-- name: Stop docker-compose
+    mode: '0640'
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Stop docker-compose
   community.docker.docker_compose:
     project_src: "{{ deployment_workdir }}"
     state: absent
     files:
-    - docker-compose.yml
-
-- name: Start docker-compose
+      - docker-compose.yml
   vars:
     ansible_python_interpreter: /usr/local/bin/python3.10
+
+- name: Start docker-compose
   community.docker.docker_compose:
     project_src: "{{ deployment_workdir }}"
     state: present
     files:
-    - docker-compose.yml
+      - docker-compose.yml
+  vars:
+    ansible_python_interpreter: /usr/local/bin/python3.10
