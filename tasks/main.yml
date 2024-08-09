@@ -5,28 +5,19 @@
     state: directory
     mode: '0755'
 
-- name: Install system dependencies
+- name: Install system packages
   ansible.builtin.apt:
     name: "{{ deployment_system_packages }}"
     state: present
 
-- name: Install Docker Compose
-  ansible.builtin.get_url:
-    url: "{{ docker_compose_url }}"
-    dest: "{{ docker_compose_path }}"
-    owner: root
-    group: root
-    mode: 0o755
-
 - name: Install python3 modules
   become: true
   ansible.builtin.pip:
-    name: "{{ item }}"
-    state: forcereinstall
-  loop:
+    name:
     - bottle
     - setuptools-rust
     - dxlmispservice
+    state: present
 
 - name: Copying the Keycloak Directory and its contents
   become: true
