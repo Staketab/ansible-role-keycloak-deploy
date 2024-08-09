@@ -5,17 +5,18 @@
     state: directory
     mode: '0755'
 
-- name: Install and upgrade pip
-  ansible.builtin.pip:
-    name: pip
-    extra_args: --upgrade
-    executable: pip3
-
-- name: Ensure python3-pip is installed
-  become: true
+- name: Install system dependencies
   ansible.builtin.apt:
-    name: python3-pip
+    name: "{{ deployment_system_packages }}"
     state: present
+
+- name: Install Docker Compose
+  ansible.builtin.get_url:
+    url: "{{ docker_compose_url }}"
+    dest: "{{ docker_compose_path }}"
+    owner: root
+    group: root
+    mode: 0o755
 
 - name: Install python3 modules
   become: true
@@ -24,32 +25,8 @@
     state: forcereinstall
   loop:
     - bottle
-    - docker-compose
-
-- name: Install dxlmispservice with pip3
-  become: true
-  ansible.builtin.pip:
-    name: dxlmispservice
-
-- name: Ensure pkg-config is installed
-  become: true
-  ansible.builtin.apt:
-    name: pkg-config
-    state: present
-
-- name: Install setuptools-rust with pip3
-  become: true
-  ansible.builtin.pip:
-    name: setuptools-rust
-
-- name: Install docker-compose with pip
-  become: true
-  ansible.builtin.pip:
-    name: docker-compose
-
-- name: Show ansible_python
-  ansible.builtin.debug:
-    msg: "{{ ansible_python }}"
+    - setuptools-rust
+    - dxlmispservice
 
 - name: Copying the Keycloak Directory and its contents
   become: true
@@ -85,16 +62,15 @@
     mode: '0640'
 
 - name: Stop docker-compose
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ deployment_workdir }}"
     state: absent
     files:
       - docker-compose.yml
 
 - name: Start docker-compose
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ deployment_workdir }}"
     state: present
     files:
       - docker-compose.yml
-
