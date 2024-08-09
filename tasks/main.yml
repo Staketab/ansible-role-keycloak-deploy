@@ -5,7 +5,7 @@
     state: directory
     mode: '0755'
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Install and upgrade pip
   ansible.builtin.pip:
@@ -13,7 +13,7 @@
     extra_args: --upgrade
     executable: pip3
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Ensure python3-pip is installed
   ansible.builtin.apt:
@@ -21,7 +21,7 @@
     state: present
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Install python3 modules
   ansible.builtin.pip:
@@ -31,7 +31,7 @@
     - bottle
     - docker-compose
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
   become: yes
 
 - name: Install dxlmispservice with pip3
@@ -39,7 +39,7 @@
     name: dxlmispservice
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Ensure pkg-config is installed
   ansible.builtin.apt:
@@ -47,27 +47,27 @@
     state: present
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Install setuptools-rust with pip3
   ansible.builtin.pip:
     name: setuptools-rust
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Install docker-compose with pip
   ansible.builtin.pip:
     name: docker-compose
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Show ansible_python
   ansible.builtin.debug:
     msg: "{{ ansible_python }}"
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Copying the Keycloak Directory and its contents
   ansible.builtin.copy:
@@ -78,7 +78,7 @@
     mode: '0755'
   become: yes
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Transfer a JAR artifact to the remote server
   ansible.builtin.copy:
@@ -88,7 +88,7 @@
     group: "{{ deployment_group }}"
     mode: '0755'
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Transfer a Docker artifact to the remote server
   ansible.builtin.copy:
@@ -98,7 +98,7 @@
     group: "{{ deployment_group }}"
     mode: '0755'
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Setup environment variables
   ansible.builtin.template:
@@ -108,7 +108,7 @@
     group: "{{ deployment_group }}"
     mode: '0640'
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Stop docker-compose
   community.docker.docker_compose:
@@ -117,7 +117,7 @@
     files:
       - docker-compose.yml
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
 
 - name: Start docker-compose
   community.docker.docker_compose:
@@ -126,4 +126,4 @@
     files:
       - docker-compose.yml
   vars:
-    ansible_python_interpreter: /usr/local/bin/python3.10
+    ansible_python_interpreter: /usr/bin/python3.6.9
