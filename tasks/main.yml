@@ -145,13 +145,38 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+- name: Ensure rsync is installed
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
 - name: Copying the Keycloak Directory and its contents
-  ansible.builtin.copy:
+  ansible.posix.synchronize:
     src: "{{ deployment_resources }}"
     dest: "{{ deployment_workdir }}/"
+    archive: yes
+    compress: yes
+    delete: yes
+    recursive: yes
+    rsync_opts:
+      - "--exclude=*.bak"
+      - "--exclude=*.tmp"
+      - "--exclude=.git"
+  become: yes
+  become_user: "{{ deployment_user }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Set correct ownership
+  ansible.builtin.file:
+    path: "{{ deployment_workdir }}"
     owner: "{{ deployment_user }}"
     group: "{{ deployment_group }}"
     mode: '0755'
+    recurse: yes
   become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
@@ -199,9 +224,33 @@
   community.docker.docker_compose_v2:
     project_src: "{{ deployment_workdir }}"
     state: "present"
-    timeout: 300
+    timeout: 600
     remove_orphans: true
     files:
       - docker-compose.yml
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  register: compose_result
+  retries: 3
+  delay: 10
+  until: compose_result is success
+
+- name: Wait for Keycloak services to be fully up
+  ansible.builtin.pause:
+    seconds: 30
+  when: compose_result is changed
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Check Keycloak container status
+  community.docker.docker_container_info:
+    name: keycloak
+  register: keycloak_info
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Display Keycloak container status
+  ansible.builtin.debug:
+    var: keycloak_info.container.State
   vars:
     ansible_python_interpreter: /usr/bin/python3
