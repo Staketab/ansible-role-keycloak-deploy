@@ -23,6 +23,18 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+- name: Ensure build dependencies for pip packages are installed
+  ansible.builtin.apt:
+    name:
+      - python3-dev
+      - libyaml-dev
+      - build-essential
+      - libffi-dev
+      - libssl-dev
+    state: present
+    update_cache: yes
+  become: yes
+
 - name: Install python3 modules
   ansible.builtin.pip:
     name: "{{ item }}"
