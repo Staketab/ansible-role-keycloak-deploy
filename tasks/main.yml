@@ -201,6 +201,14 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+- name: Update docker-compose.yml to remove obsolete version attribute
+  ansible.builtin.lineinfile:
+    path: "{{ deployment_workdir }}/docker-compose.yml"
+    regexp: '^version:'
+    state: absent
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
 - name: Setup environment variables
   ansible.builtin.template:
     src: env.j2
@@ -211,12 +219,39 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
-- name: Stop docker-compose
-  community.docker.docker_compose_v2:
-    project_src: "{{ deployment_workdir }}"
-    state: stopped
-    files:
-      - docker-compose.yml
+- name: Force stop any running containers
+  ansible.builtin.shell: |
+    cd {{ deployment_workdir }} && docker compose down --volumes --remove-orphans
+  ignore_errors: yes
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Wait for containers to fully stop
+  ansible.builtin.pause:
+    seconds: 5
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Clean up any stale containers
+  ansible.builtin.shell: |
+    docker rm -f $(docker ps -a -q --filter "name=keycloak" --format "{{.ID}}") 2>/dev/null || true
+  ignore_errors: yes
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Verify docker-compose.yml syntax
+  ansible.builtin.shell: |
+    cd {{ deployment_workdir }} && docker compose config
+  changed_when: false
+  register: compose_config
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Display docker-compose config
+  ansible.builtin.debug:
+    var: compose_config.stdout_lines
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
@@ -231,8 +266,8 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
   register: compose_result
-  retries: 3
-  delay: 10
+  retries: 2
+  delay: 15
   until: compose_result is success
 
 - name: Wait for Keycloak services to be fully up
@@ -242,15 +277,33 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
+- name: Get Keycloak container logs if failed
+  ansible.builtin.shell: |
+    docker logs $(docker ps -a -q --filter "name=keycloak" --format "{{.ID}}") 2>&1
+  register: keycloak_logs
+  ignore_errors: yes
+  when: compose_result is failed
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Display Keycloak container logs
+  ansible.builtin.debug:
+    var: keycloak_logs.stdout_lines
+  when: keycloak_logs is defined and keycloak_logs.stdout_lines is defined
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
 - name: Check Keycloak container status
-  community.docker.docker_container_info:
+  community.docker.docker_container_info: 
     name: keycloak
   register: keycloak_info
+  ignore_errors: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
 - name: Display Keycloak container status
   ansible.builtin.debug:
     var: keycloak_info.container.State
+  when: keycloak_info is defined and keycloak_info.container is defined
   vars:
     ansible_python_interpreter: /usr/bin/python3
