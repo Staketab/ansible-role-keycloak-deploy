@@ -41,7 +41,6 @@
     state: forcereinstall
   loop:
     - bottle
-    - docker-compose
   vars:
     ansible_python_interpreter: /usr/bin/python3
   become: yes
@@ -68,9 +67,28 @@
   vars:
     ansible_python_interpreter: /usr/bin/python3
 
-- name: Install docker-compose with pip
-  ansible.builtin.pip:
-    name: docker-compose
+- name: Ensure Docker is installed
+  ansible.builtin.apt:
+    name: docker.io
+    state: present
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Create Docker plugin directory if it doesn't exist
+  ansible.builtin.file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    mode: '0755'
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
+- name: Download Docker Compose V2 plugin
+  ansible.builtin.get_url:
+    url: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    mode: '0755'
   become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
